@@ -11,6 +11,7 @@ import java.util.ArrayList;
 
 /**
  * Created by sinaastani on 4/26/18.
+ *
  */
 @RestController
 @RequestMapping(value = "/", method = RequestMethod.GET)
@@ -30,6 +31,7 @@ class GamesController {
     @RequestMapping(value = "/new", method = RequestMethod.POST)
     public void createGame(){
         this.game = new Game(word_list);
+
     }
     //POST
     //make guess
