@@ -48,11 +48,8 @@ class GamesController {
     }
     //POST
     //make guess
-    @RequestMapping(value = "/guess", method = RequestMethod.POST)
-    @ResponseBody
-    public Game makeGuess(@RequestBody final Request req, HttpSession session) throws GameDoesNotExistException, InvalidCharacterException{
-        String game = req.getGame();
-        String guess = req.getGuess();
+    @RequestMapping(value = "/guess/{game}/{guess}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public Game makeGuess(@PathVariable String game, @PathVariable String guess, HttpSession session) throws GameDoesNotExistException, InvalidCharacterException{
         Game g = getGame(game,session);
 
         String gameId = g.getId();
@@ -71,6 +68,8 @@ class GamesController {
                 throw new InvalidCharacterException(guess);
             }
         }
+        g = getGame(game,session);
+
         return g;
     }
 
