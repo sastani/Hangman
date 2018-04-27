@@ -1,4 +1,4 @@
-package exceptions;
+package com.exceptions;
 
 /**
  * Created by sinaastani on 4/26/18.

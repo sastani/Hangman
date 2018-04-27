@@ -1,6 +1,6 @@
-package web;
+package com.web;
 
-import processors.CreateWordArray;
+import com.processors.CreateWordArray;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -14,8 +14,7 @@ final class GamesInit {
     public GamesInit() {
         String dir = System.getProperty("user.dir");
         String fpath = dir + File.separator + "bogwords.txt";
-        ArrayList<String> wlist = CreateWordArray.createWordList(fpath);
-        this.word_list = wlist;
+        this.word_list = CreateWordArray.createWordList(fpath);
     }
 
     public ArrayList<String> getWordList(){

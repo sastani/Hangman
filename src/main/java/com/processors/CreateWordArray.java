@@ -1,4 +1,4 @@
-package processors;
+package com.processors;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -16,10 +16,10 @@ public class CreateWordArray{
             br.close();
         }
         catch (FileNotFoundException e){
-            System.out.println(e);
+            e.printStackTrace();
         }
         catch (IOException i){
-            System.out.println(i);
+            i.printStackTrace();
         }
         return word_list;
 

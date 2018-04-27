@@ -1,12 +1,14 @@
-package models;
+package com.models;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Set;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
 /**
  * Created by sinaastani on 4/24/18.
  */
+
 public class Game {
 
     private final String gameId;
@@ -24,11 +26,13 @@ public class Game {
         this.guessedWord = initGameString(this.word.length());
     }
 
+
     //getters
     public String getId(){
         return gameId;
     }
 
+    @JsonIgnore
     public String getWord(){
         return word;
     }
@@ -50,8 +54,20 @@ public class Game {
     }
 
     //setters
-    public void setStatus(GameStatus s){
-        this.status = s;
+    public void setStatus(){
+        if(word.equals(guessedWord)) {
+            this.status = GameStatus.WON;
+        }
+        else{
+            if(incorrectGuesses < MAX_TRIES) {
+                this.status = GameStatus.ACTIVE;
+            }
+            if(incorrectGuesses == MAX_TRIES){
+                this.status = GameStatus.LOST;
+            }
+        }
+
+
     }
 
     public void incIncorrect_guesses(){
@@ -63,7 +79,7 @@ public class Game {
     }
 
     public void setGuessedWord(Character c, ArrayList<Integer> indices) {
-        String newGuessedWord = "";
+        String newGuessedWord;
         StringBuilder sb = new StringBuilder();
         int numChars = getGuessed_word().length();
         for (int i = 0; i < numChars; i++) {
@@ -78,7 +94,7 @@ public class Game {
     }
 
     //choose word from word list
-    public static String chooseWord(ArrayList<String> wlist){
+    private static String chooseWord(ArrayList<String> wlist){
         String chosen_word;
         int num_words = wlist.size();
         Random r = new Random(System.currentTimeMillis());
@@ -88,17 +104,19 @@ public class Game {
     }
 
     private static String initGameString(int word_len){
-        String w = "";
+        String w;
+        StringBuilder sb = new StringBuilder();
         for(int i=0; i < word_len; i++) {
-            w += "_";
+            sb.append("_");
         }
+        w = sb.toString();
         return w;
     }
     //generate id for game
     private static String createId(){
         String alphabet= "abcdefghijklmnopqrstuvwxyz";
         StringBuilder sb = new StringBuilder();
-        String id = "";
+        String id;
         Random r = new Random(System.currentTimeMillis());
         //generate random sequence of 6 chars
         int id_len = 6;
