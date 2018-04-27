@@ -1,6 +1,7 @@
 package com.web;
 
 import com.models.Game;
+import com.models.Request;
 import com.exceptions.*;
 import com.models.GameStatus;
 import com.models.StartedGame;
@@ -11,6 +12,7 @@ import org.springframework.http.*;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 /**
@@ -46,25 +48,27 @@ class GamesController {
     }
     //POST
     //make guess
-    @RequestMapping(value = "/guess/{game, guess}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Game makeGuess(@PathVariable String id, Character c, HttpSession session) throws GameDoesNotExistException, InvalidCharacterException{
-        Game g = getGame(id,session);
+    @RequestMapping(value = "/guess", method = RequestMethod.POST)
+    @ResponseBody
+    public Game makeGuess(@RequestBody final Request req, HttpSession session) throws GameDoesNotExistException, InvalidCharacterException{
+        String game = req.getGame();
+        String guess = req.getGuess();
+        Game g = getGame(game,session);
 
-        String s = c.toString();
         String gameId = g.getId();
-        if(gameId.equals(id) && s.length() > 0) {
-            boolean correct = compareWords(c, g);
+        if(gameId.equals(game) && guess.length() > 0) {
+            boolean correct = compareWords(guess, g);
             if(!correct){
                 g.incIncorrect_guesses();
             }
             g.setStatus();
         }
         else{
-            if(!gameId.equals(id)) {
-                throw new GameDoesNotExistException(id);
+            if(!gameId.equals(game)) {
+                throw new GameDoesNotExistException(game);
             }
             else{
-                throw new InvalidCharacterException(c.toString());
+                throw new InvalidCharacterException(guess);
             }
         }
         return g;
@@ -96,10 +100,11 @@ class GamesController {
         return games;
     }
 
-    private boolean compareWords(Character c, Game g){
+    private boolean compareWords(String c, Game g){
         //automatically turn letter to lowercase
-        String guess = c.toString().toLowerCase();
-        g.setGuessedChars(c);
+        String guess = c.toLowerCase();
+        Character ch = guess.charAt(0);
+        g.setGuessedChars(ch);
         String word = g.getWord();
         boolean correct;
         //check if word contains given char
@@ -108,13 +113,13 @@ class GamesController {
             ArrayList<Integer> charInd = new ArrayList<>();
             //find all indices where guessed character is located in word
             for(int i=0; i < word.length(); i++){
-                Character ch = word.charAt(i);
-                if(ch.equals(c)){
+                Character wc = word.charAt(i);
+                if(wc.equals(ch)){
                     charInd.add(i);
                 }
             }
             //change game's guessed word
-            g.setGuessedWord(c, charInd);
+            g.setGuessedWord(ch, charInd);
         }
         //increase incorrect guesses if it does not
         else{
