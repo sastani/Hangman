@@ -2,11 +2,10 @@ package web;
 
 import models.Game;
 import exceptions.*;
+import models.GameStatus;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
 
@@ -26,16 +25,18 @@ class GamesController {
         this.word_list = init_games.getWordList();
         this.game = null;
     }
-
+    //POST
+    //create new game
     @RequestMapping(value = "/new", method = RequestMethod.POST)
     public void createGame(){
-        Game g = new Game(word_list);
-        this.game = g;
+        this.game = new Game(word_list);
     }
-
+    //POST
+    //make guess
     @RequestMapping(value = "/guess {game, guess}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public void makeGuess(String id, Character c) throws GameDoesNotExistException, InvalidCharacterException{
         Game g = this.game;
+
         String s = c.toString();
         String gameId = g.getId();
         if(gameId.equals(id) && s.length() > 0) {
@@ -51,15 +52,28 @@ class GamesController {
         }
     }
 
+    //GET
+    //get current game data
     @RequestMapping(value = "/guess {gameId, guess, incorrect, status}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public void returnResult(){
+        Game g = this.game;
+        String id = g.getId();
+        String guessedWord = g.getGuessed_word();
+        int incorrGuesses = g.getIncorrect_guesses();
+        GameStatus gs = g.getStatus();
 
     }
 
-    public void compareWords(Character c, Game g){
+    //DELETE
+    //destroy current game
+    @RequestMapping(value="/{gameId}", method = RequestMethod.DELETE)
+    public void destroyGame(){
+
+    }
+
+    private void compareWords(Character c, Game g){
         //automatically turn letter to lowercase
         String guess = c.toString().toLowerCase();
-        Game g = this.game;
         g.setGuessedChars(c);
         String word = g.getWord();
         //check if word contains given char

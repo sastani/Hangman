@@ -1,10 +1,8 @@
 package models;
-import java.io.*;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Set;
 
-import processor.CreateWordArray;
 
 /**
  * Created by sinaastani on 4/24/18.
@@ -66,20 +64,22 @@ public class Game {
 
     public void setGuessedWord(Character c, ArrayList<Integer> indices) {
         String newGuessedWord = "";
+        StringBuilder sb = new StringBuilder();
         int numChars = getGuessed_word().length();
         for (int i = 0; i < numChars; i++) {
             if (indices.contains(i)) {
-                newGuessedWord += c;
+                sb.append(c);
             } else {
-                newGuessedWord += "_";
+                sb.append("_");
             }
         }
+        newGuessedWord = sb.toString();
         this.guessedWord = newGuessedWord;
     }
 
     //choose word from word list
     public static String chooseWord(ArrayList<String> wlist){
-        String chosen_word = "";
+        String chosen_word;
         int num_words = wlist.size();
         Random r = new Random(System.currentTimeMillis());
         int ran_int = r.nextInt(num_words);
@@ -87,7 +87,7 @@ public class Game {
         return chosen_word;
     }
 
-    public static String initGameString(int word_len){
+    private static String initGameString(int word_len){
         String w = "";
         for(int i=0; i < word_len; i++) {
             w += "_";
@@ -95,8 +95,9 @@ public class Game {
         return w;
     }
     //generate id for game
-    public static String createId(){
+    private static String createId(){
         String alphabet= "abcdefghijklmnopqrstuvwxyz";
+        StringBuilder sb = new StringBuilder();
         String id = "";
         Random r = new Random(System.currentTimeMillis());
         //generate random sequence of 6 chars
@@ -105,8 +106,9 @@ public class Game {
         for(int i=0; i < id_len; i++){
             //choose random letter in alphabet
             ran_char = alphabet.charAt(r.nextInt(26));
-            id += ran_char;
+            sb.append(ran_char);
         }
+        id = sb.toString();
         return id;
     }
 }
