@@ -25,7 +25,6 @@ public class Game {
         this.guessedWord = initGameString(this.word.length());
     }
 
-
     //getters
     public String getId(){
         return gameId;
@@ -50,9 +49,6 @@ public class Game {
 
     //setters
     public void setStatus(){
-        System.out.println(guessedWord);
-        System.out.println(word);
-
         if(word.equals(guessedWord)) {
             this.status = GameStatus.WON;
         }
@@ -95,7 +91,6 @@ public class Game {
             }
         }
         newGuessedWord = sb.toString();
-        System.out.println(newGuessedWord);
         this.guessedWord = newGuessedWord;
     }
 

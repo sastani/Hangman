@@ -45,87 +45,60 @@ class GamesController {
         return new StartedGame(newGame);
     }
 
-
-
-    @RequestMapping(value = "/guess", method = RequestMethod.POST, headers="Accept=application/json", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<GameOverInfo> getCustomerById(@PathVariable String id)
+    //exception handler for dealing with games that are not active
+    @ExceptionHandler(GameOverException.class)
+    private ResponseEntity<GameOverInfo> gameOver()
     {
-        Customer customer;
-        try
-        {
-            customer = customerService.getCustomerDetail(id);
-        }
-        catch (CustomerNotFoundException e)
-        {
-            return new ResponseEntity<Customer>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<Customer>(customer,HttpStatus.OK);
+        String s = "Game is already complete";
+        GameOverInfo error = new GameOverInfo(s);
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
-
 
     //POST
     //make guess
-    @ExceptionHandler(GameOverException.class)
-    public ResponseEntity<GameOverInfo> gameOver(Exception e)
-    {
-        GameOverInfo error = new GameOverInfo(e.toString());
-        return new ResponseEntity<GameOverInfo>(error, HttpStatus.NOT_FOUND);
-    }
-
     @RequestMapping(value = "/guess", method = RequestMethod.POST, headers="Accept=application/json", consumes = "application/json", produces = "application/json")
-    public Game makeGuess(@RequestBody Guess gameAndLetter, HttpSession session) throws GameOverException, GameDoesNotExistException, InvalidCharacterException{
+    public ResponseEntity<?> makeGuess (@RequestBody Guess gameAndLetter, HttpSession session) throws GameDoesNotExistException, InvalidCharacterException {
         String game = gameAndLetter.getGame();
         String guess = gameAndLetter.getGuess();
-        Game g = getGame(game,session);
+        Game g = getGame(game, session);
         String gameId = g.getId();
         GameStatus stat = g.getStatus();
-        if(!(stat == null)){
-            System.out.println(stat);
-
-            switch(stat){
+        if (!(stat == null)) {
+            switch (stat) {
                 case ACTIVE:
                     break;
                 case WON:
-                    GameOverException gameWon = new GameOverException();
-                    gameOver(gameWon);
-                    break;
+                    return gameOver();
                 case LOST:
-                    System.out.println("FUCK");
-                    GameOverException gameLost = new GameOverException();
-                    gameOver(gameLost);
-                    System.out.println("THIS");
-
-                    break;
+                    return gameOver();
             }
         }
 
-        if(gameId.equals(game) && guess.length() > 0) {
+        if (gameId.equals(game) && guess.length() > 0) {
             char ch = cleanUp(guess);
             boolean correct = compareWords(ch, g);
 
-            if(!correct){
+            if (!correct) {
                 g.incIncorrect_guesses();
 
-            }
-            else {
+            } else {
                 //change game's guessed word
                 g.setGuessedWord(ch);
 
             }
             g.setStatus();
 
-        }
-        else{
-            if(!gameId.equals(game)) {
+        } else {
+            if (!gameId.equals(game)) {
                 throw new GameDoesNotExistException(game);
-            }
-            else{
+            } else {
                 throw new InvalidCharacterException(guess);
             }
         }
+        return new ResponseEntity<>(g, HttpStatus.OK);
 
-        return g;
     }
+
 
     // Find an existing game
     private Game getGame(String id, HttpSession session) throws GameDoesNotExistException{
@@ -142,6 +115,7 @@ class GamesController {
         }
         return g;
     }
+
     //Get games in session
     private List<Game> getCurrentGames(HttpSession session) {
         List<Game> games = (List<Game>) session.getAttribute("games");
@@ -166,10 +140,8 @@ class GamesController {
         boolean correct;
         CharSequence cs = Character.toString(ch);
         //check if word contains given char
-        System.out.println(word);
         if(word.contains(cs)){
             correct = true;
-            System.out.println("AYAYA");
         }
         //increase incorrect guesses if it does not
         else{

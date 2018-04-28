@@ -1,0 +1,17 @@
+HangmanApp
+
+This a web application that supports playing Hangman. It uses a word list from Duke's CS Department.
+The word list is included with the source files, but can also be found here (see link "about 20,000 words"): https://users.cs.duke.edu/~ola/ap.html
+
+Besides implementing the requested API calls, it also supports getting game data from previous games.
+To get a JSON object containing game data for every game in the current session make the following API call:
+POST
+http://localhost:8080/games
+
+If you pass a string of characters that is longer than one character,
+it only keeps the first character and uses that to make a guess.
+
+Additionally, if you guess a character that is correct multiple times, you are not penalized.
+However, if you guess a wrong character multiple times, you will lose a turn each time.
+
+-Sina
