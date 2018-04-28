@@ -14,7 +14,6 @@ public class Game {
     private final String gameId;
     private final String word;
     private String guessedWord;
-    private Set<Character> guessedChars;
     private GameStatus status;
     private int incorrectGuesses;
     private static final int MAX_TRIES = 7;
@@ -49,12 +48,11 @@ public class Game {
         return status;
     }
 
-    public Set<Character> getGuessedChars() {
-        return guessedChars;
-    }
-
     //setters
     public void setStatus(){
+        System.out.println(guessedWord);
+        System.out.println(word);
+
         if(word.equals(guessedWord)) {
             this.status = GameStatus.WON;
         }
@@ -74,22 +72,30 @@ public class Game {
         this.incorrectGuesses++;
     }
 
-    public void setGuessedChars(Character c){
-        this.guessedChars.add(c);
-    }
-
-    public void setGuessedWord(Character c, ArrayList<Integer> indices) {
+    public void setGuessedWord(Character c) {
+        ArrayList<Integer> charInd = new ArrayList<>();
+        //find all indices where guessed character is located in word
+        String corrWord = this.word;
+        for(int i=0; i < corrWord.length(); i++) {
+            Character wc = corrWord.charAt(i);
+            if (wc.equals(c)) {
+                charInd.add(i);
+            }
+        }
         String newGuessedWord;
         StringBuilder sb = new StringBuilder();
-        int numChars = getGuessed_word().length();
+
+        String guessedWord = getGuessed_word();
+        int numChars = guessedWord.length();
         for (int i = 0; i < numChars; i++) {
-            if (indices.contains(i)) {
+            if (charInd.contains(i)) {
                 sb.append(c);
             } else {
-                sb.append("_");
+                sb.append(guessedWord.charAt(i));
             }
         }
         newGuessedWord = sb.toString();
+        System.out.println(newGuessedWord);
         this.guessedWord = newGuessedWord;
     }
 

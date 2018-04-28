@@ -1,20 +1,18 @@
 package com.web;
-
 import com.models.Game;
-import com.models.Request;
+import com.models.Guess;
 import com.exceptions.*;
 import com.models.GameStatus;
 import com.models.StartedGame;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.*;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
 /**
  * Created by sinaastani on 4/26/18.
  *
@@ -46,19 +44,76 @@ class GamesController {
         games.add(newGame);
         return new StartedGame(newGame);
     }
+
+
+
+    @RequestMapping(value = "/guess", method = RequestMethod.POST, headers="Accept=application/json", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<GameOverInfo> getCustomerById(@PathVariable String id)
+    {
+        Customer customer;
+        try
+        {
+            customer = customerService.getCustomerDetail(id);
+        }
+        catch (CustomerNotFoundException e)
+        {
+            return new ResponseEntity<Customer>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<Customer>(customer,HttpStatus.OK);
+    }
+
+
     //POST
     //make guess
-    @RequestMapping(value = "/guess/{game}/{guess}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Game makeGuess(@PathVariable String game, @PathVariable String guess, HttpSession session) throws GameDoesNotExistException, InvalidCharacterException{
-        Game g = getGame(game,session);
+    @ExceptionHandler(GameOverException.class)
+    public ResponseEntity<GameOverInfo> gameOver(Exception e)
+    {
+        GameOverInfo error = new GameOverInfo(e.toString());
+        return new ResponseEntity<GameOverInfo>(error, HttpStatus.NOT_FOUND);
+    }
 
+    @RequestMapping(value = "/guess", method = RequestMethod.POST, headers="Accept=application/json", consumes = "application/json", produces = "application/json")
+    public Game makeGuess(@RequestBody Guess gameAndLetter, HttpSession session) throws GameOverException, GameDoesNotExistException, InvalidCharacterException{
+        String game = gameAndLetter.getGame();
+        String guess = gameAndLetter.getGuess();
+        Game g = getGame(game,session);
         String gameId = g.getId();
+        GameStatus stat = g.getStatus();
+        if(!(stat == null)){
+            System.out.println(stat);
+
+            switch(stat){
+                case ACTIVE:
+                    break;
+                case WON:
+                    GameOverException gameWon = new GameOverException();
+                    gameOver(gameWon);
+                    break;
+                case LOST:
+                    System.out.println("FUCK");
+                    GameOverException gameLost = new GameOverException();
+                    gameOver(gameLost);
+                    System.out.println("THIS");
+
+                    break;
+            }
+        }
+
         if(gameId.equals(game) && guess.length() > 0) {
-            boolean correct = compareWords(guess, g);
+            char ch = cleanUp(guess);
+            boolean correct = compareWords(ch, g);
+
             if(!correct){
                 g.incIncorrect_guesses();
+
+            }
+            else {
+                //change game's guessed word
+                g.setGuessedWord(ch);
+
             }
             g.setStatus();
+
         }
         else{
             if(!gameId.equals(game)) {
@@ -68,7 +123,6 @@ class GamesController {
                 throw new InvalidCharacterException(guess);
             }
         }
-        g = getGame(game,session);
 
         return g;
     }
@@ -98,27 +152,24 @@ class GamesController {
         }
         return games;
     }
-
-    private boolean compareWords(String c, Game g){
+    //clean up input if more than one character/keep only first char
+    private char cleanUp(String c){
         //automatically turn letter to lowercase
         String guess = c.toLowerCase();
-        Character ch = guess.charAt(0);
-        g.setGuessedChars(ch);
+        char ch = guess.charAt(0);
+        return ch;
+    }
+    private boolean compareWords(char ch, Game g){
+
+        //g.setGuessedChars(ch);
         String word = g.getWord();
         boolean correct;
+        CharSequence cs = Character.toString(ch);
         //check if word contains given char
-        if(word.contains(guess)){
+        System.out.println(word);
+        if(word.contains(cs)){
             correct = true;
-            ArrayList<Integer> charInd = new ArrayList<>();
-            //find all indices where guessed character is located in word
-            for(int i=0; i < word.length(); i++){
-                Character wc = word.charAt(i);
-                if(wc.equals(ch)){
-                    charInd.add(i);
-                }
-            }
-            //change game's guessed word
-            g.setGuessedWord(ch, charInd);
+            System.out.println("AYAYA");
         }
         //increase incorrect guesses if it does not
         else{
