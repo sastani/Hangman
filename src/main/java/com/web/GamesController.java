@@ -28,6 +28,7 @@ class GamesController {
         GamesInit init_games = new GamesInit();
         this.wordList = init_games.getWordList();
     }
+    
     //get list of games player is playing or has played during session
     @RequestMapping("/games")
     public List<Game> getGameList(HttpSession session) {
@@ -35,7 +36,7 @@ class GamesController {
         return games;
     }
 
-    //POST
+    //GET
     //create new game
     @RequestMapping(value = "/new", method = RequestMethod.GET)
     public StartedGame startGame(HttpSession session){
@@ -134,8 +135,6 @@ class GamesController {
         return ch;
     }
     private boolean compareWords(char ch, Game g){
-
-        //g.setGuessedChars(ch);
         String word = g.getWord();
         boolean correct;
         CharSequence cs = Character.toString(ch);
