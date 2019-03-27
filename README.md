@@ -1,6 +1,6 @@
-### RESTful Hangman
+## RESTful Hangman
 
-# REST API for playing Hangman. It uses a word list from Duke's CS Department.
+## REST API for playing Hangman. It uses a word list from Duke's CS Department.
 
 # Installation:
 
