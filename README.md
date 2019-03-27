@@ -1,6 +1,6 @@
 ## RESTful Hangman
 
-### REST API for playing Hangman. It uses a word list from Duke's CS Department.
+REST API for playing Hangman creating using Spring Boot. It uses a word list from Duke's CS Department.
 
 # Installation:
 
@@ -27,12 +27,15 @@ java -jar target/Hangman-0.0.1-SNAPSHOT.jar
 ## Making requests
 
 To get a new game:
+
 **GET localhost:8080/new**
 
 To make a guess:
+
 **POST localhost:8080/guess{"game":[gameId], "guess":[character]}**
 
 To get a JSON object containing game data for every game in the current session make the following API call:
+
 **POST localhost:8080/games**
 
 If you pass a string of characters that is longer than one character,
