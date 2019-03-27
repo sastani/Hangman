@@ -27,16 +27,13 @@ java -jar target/Hangman-0.0.1-SNAPSHOT.jar
 ## Making requests
 
 To get a new game:
-**GET
-http://localhost:8080/new**
+**GET localhost:8080/new**
 
 To make a guess:
-**POST
-http://localhost:8080/guess{"game":[gameId] "guess":[character]}**
+**POST localhost:8080/guess{"game":[gameId], "guess":[character]}**
 
 To get a JSON object containing game data for every game in the current session make the following API call:
-**POST
-http://localhost:8080/games**
+**POST localhost:8080/games**
 
 If you pass a string of characters that is longer than one character,
 it only keeps the first character and uses that to make a guess.
