@@ -99,6 +99,9 @@ class GamesController {
     // Find an existing game
     private Game getGame(String id, HttpSession session) throws GameDoesNotExistException{
         List<Game> games = (List<Game>) session.getAttribute("games");
+        if(games == null){
+            throw new GameDoesNotExistException(id);
+        }
         Game g = null;
         for(int i = 0; i < games.size(); i++){
             g = games.get(i);
